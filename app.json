@@ -21,10 +21,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.naresh_bazidpuria.letschat"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4387058a-d80d-4258-882f-c0127eae0d2e"
+      }
+    },
+    "owner": "naresh_bazidpuria"
   }
 }

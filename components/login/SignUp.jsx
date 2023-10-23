@@ -10,8 +10,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
 import { ActivityIndicator } from "react-native";
 
-const Login = ({ navigation }) => {
-  const [payload, setPayload] = useState({ userName: "", password: "" });
+const SignUp = ({ navigation }) => {
+  const [payload, setPayload] = useState({
+    name: "",
+    email: "",
+    userName: "",
+    password: "",
+    cPass: "",
+  });
   const [loading, setLoading] = useState(false);
 
   const message = (msg) => ToastAndroid.show(msg, ToastAndroid.LONG);
@@ -68,9 +74,34 @@ const Login = ({ navigation }) => {
             Let's Chat
           </Text>
           <Text style={tw`text-base text-center font-bold text-gray-400`}>
-            Login to your account
+            Create your new account
           </Text>
           <View style={tw`justify-center gap-5 mt-16`}>
+            <View
+              style={tw`flex flex-row items-center gap-2 p-2 rounded-md bg-[${bg}]`}
+            >
+              <Icon name="person" size={20} color={primary} />
+              <TextInput
+                placeholder="Name"
+                placeholderTextColor="gray"
+                style={tw`text-[${primary}] font-bold p-0 w-[85%]`}
+                onChangeText={(e) => onChange("name", e)}
+                value={payload?.name}
+              />
+            </View>
+
+            <View
+              style={tw`flex flex-row items-center gap-2 p-2 rounded-md bg-[${bg}]`}
+            >
+              <Icon name="person" size={20} color={primary} />
+              <TextInput
+                placeholder="Email"
+                placeholderTextColor="gray"
+                style={tw`text-[${primary}] font-bold p-0 w-[85%]`}
+                onChangeText={(e) => onChange("email", e)}
+                value={payload?.email}
+              />
+            </View>
             <View
               style={tw`flex flex-row items-center gap-2 p-2 rounded-md bg-[${bg}]`}
             >
@@ -96,34 +127,35 @@ const Login = ({ navigation }) => {
                 value={payload?.password}
               />
             </View>
-            <Text style={tw`text-right font-extrabold text-[${primary}]`}>
-              Forgot password ?
-            </Text>
+            <View
+              style={tw`flex flex-row items-center gap-2 p-2 rounded-md bg-[${bg}]`}
+            >
+              <Icon name="lock" size={20} color={primary} />
+              <TextInput
+                secureTextEntry={true}
+                placeholder="Confirm Password"
+                placeholderTextColor="gray"
+                style={tw`text-[${primary}] font-bold p-0 w-[85%]`}
+                onChangeText={(e) => onChange("cPass", e)}
+                value={payload?.cPass}
+              />
+            </View>
             <Pressable onPress={() => login(payload)} style={tw`text-lg`}>
               <Text
                 style={tw`text-lg text-center text-white py-2 rounded-md font-extrabold bg-[${primary}]`}
               >
-                Login
+                Sign Up
               </Text>
             </Pressable>
             <View style={tw`flex flex-row items-center justify-center`}>
               <Text style={tw`text-base text-gray-400 my-3`}>
-                Don't have an account ?{" "}
+                Already have an account ?{" "}
               </Text>
-              <TouchableHighlight onPress={() => navigation.push("SignUp")}>
+              <TouchableHighlight onPress={() => navigation.push("Login")}>
                 <Text style={tw`text-[${primary}] text-base font-extrabold`}>
-                  Register
+                  Login
                 </Text>
               </TouchableHighlight>
-            </View>
-            <View style={tw`flex items-center`}>
-              <Icon
-                name="fingerprint"
-                color={primary}
-                size={60}
-                style={tw`my-8 w-16 rounded-full`}
-                onPress={touchBiometrics}
-              />
             </View>
           </View>
         </View>
@@ -132,4 +164,4 @@ const Login = ({ navigation }) => {
   );
 };
 
-export default Login;
+export default SignUp;

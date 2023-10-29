@@ -11,10 +11,10 @@ const FrndTab = ({ navigation, logo, msg }) => (
     <View style={tw`flex flex-row items-center gap-1`}>
       <Image source={logo} style={tw`h-16 w-16`} />
       <View>
-        <Text style={tw`text-lg font-bold`}>{msg?.user}</Text>
+        <Text style={tw`text-base font-bold`}>{msg?.user}</Text>
         <View style={tw`flex flex-row items-center gap-1`}>
           <IonIcon name="checkmark-circle-outline" color="gray" />
-          <Text style={tw`text-gray-400`}>{msg?.text}</Text>
+          <Text style={tw`text-xs text-gray-400`}>{msg?.text}</Text>
         </View>
       </View>
     </View>

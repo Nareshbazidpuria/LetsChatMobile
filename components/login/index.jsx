@@ -1,14 +1,18 @@
-import { Image, Pressable, TextInput, ToastAndroid } from "react-native";
-import { View, Text } from "react-native";
+import {
+  Pressable,
+  TextInput,
+  ToastAndroid,
+  ActivityIndicator,
+  View,
+  Text,
+} from "react-native";
 import tw from "twrnc";
 import { bg, primary } from "../../utils/constant";
-import { TouchableHighlight } from "react-native";
-import logo from "../../assets/icon.png";
-import { Icon } from "@rneui/themed";
 import * as LocalAuthentication from "expo-local-authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
-import { ActivityIndicator } from "react-native";
+import IonIcon from "@expo/vector-icons/Ionicons";
+import LogoLable from "../common/LogoLable";
 
 const Login = ({ navigation }) => {
   const [payload, setPayload] = useState({ userName: "", password: "" });
@@ -58,23 +62,13 @@ const Login = ({ navigation }) => {
           <ActivityIndicator size={50} />
         </View>
       ) : (
-        <View style={tw`flex-1 px-10`}>
-          <View style={tw`flex items-center justify-center h-32 mt-20`}>
-            <Image source={logo} style={tw`h-32 w-32`} />
-          </View>
-          <Text
-            style={tw`text-4xl text-center font-extrabold mt-2 text-[${primary}]`}
-          >
-            Let's Chat
-          </Text>
-          <Text style={tw`text-base text-center font-bold text-gray-400`}>
-            Login to your account
-          </Text>
-          <View style={tw`justify-center gap-5 mt-16`}>
+        <View style={tw`flex p-5 gap-8 `}>
+          <LogoLable label="Login to your account" />
+          <View style={tw`justify-center gap-5`}>
             <View
               style={tw`flex flex-row items-center gap-2 p-2 rounded-md bg-[${bg}]`}
             >
-              <Icon name="person" size={20} color={primary} />
+              <IonIcon name="at" size={16} color={primary} />
               <TextInput
                 placeholder="Username"
                 placeholderTextColor="gray"
@@ -86,7 +80,7 @@ const Login = ({ navigation }) => {
             <View
               style={tw`flex flex-row items-center gap-2 p-2 rounded-md bg-[${bg}]`}
             >
-              <Icon name="lock" size={20} color={primary} />
+              <IonIcon name="lock-closed" size={16} color={primary} />
               <TextInput
                 secureTextEntry={true}
                 placeholder="Password"
@@ -110,18 +104,18 @@ const Login = ({ navigation }) => {
               <Text style={tw`text-base text-gray-400 my-3`}>
                 Don't have an account ?{" "}
               </Text>
-              <TouchableHighlight onPress={() => navigation.push("SignUp")}>
-                <Text style={tw`text-[${primary}] text-base font-extrabold`}>
-                  Register
-                </Text>
-              </TouchableHighlight>
+              <Text
+                style={tw`text-[${primary}] text-base font-extrabold`}
+                onPress={() => navigation.push("SignUp")}
+              >
+                Register
+              </Text>
             </View>
-            <View style={tw`flex items-center`}>
-              <Icon
-                name="fingerprint"
+            <View style={tw`flex items-center my-4`}>
+              <IonIcon
+                name="finger-print"
                 color={primary}
                 size={60}
-                style={tw`my-8 w-16 rounded-full`}
                 onPress={touchBiometrics}
               />
             </View>

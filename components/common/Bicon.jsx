@@ -5,7 +5,7 @@ import { primary } from "../../utils/constant";
 
 const Bicon = ({ title, name, bg = primary }) => (
   <View
-    style={tw`flex flex-row items-center gap-1 p-2 bg-[${bg}] rounded w-20 justify-center ${
+    style={tw`flex flex-row items-center gap-1 p-2 bg-[${bg}] rounded w-22 justify-center ${
       bg !== primary ? "border border-gray-300" : ""
     }`}
   >
@@ -13,7 +13,7 @@ const Bicon = ({ title, name, bg = primary }) => (
     <IonIcon
       name={name}
       size={15}
-      color={`${bg === primary ? "#fff" : "gray"}`}
+      color={`${bg === primary ? "#fff" : "black"}`}
     />
   </View>
 );

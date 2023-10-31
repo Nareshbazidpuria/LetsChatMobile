@@ -9,6 +9,7 @@ import SignUp from "./components/login/SignUp";
 import { MenuProvider } from "react-native-popup-menu";
 import { primary } from "./utils/constant";
 import Chat from "./components/chat";
+import Profile from "./components/profile";
 
 const App = () => {
   const Stack = createNativeStackNavigator();
@@ -67,7 +68,6 @@ const App = () => {
           style="light"
           translucent={false}
           backgroundColor={primary}
-          color="#fff"
         />
         <Stack.Navigator
           initialRouteName="Home"
@@ -77,6 +77,7 @@ const App = () => {
         >
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="Chat" component={Chat} />
+          <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
         </Stack.Navigator>

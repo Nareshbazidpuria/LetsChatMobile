@@ -2,13 +2,12 @@ import {
   Dimensions,
   FlatList,
   Image,
-  PermissionsAndroid,
+  Pressable,
   Text,
   TextInput,
   View,
 } from "react-native";
 import tw from "twrnc";
-// import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import * as ImagePicker from "expo-image-picker";
 import { primary } from "../../utils/constant";
 import IonIcon from "@expo/vector-icons/Ionicons";
@@ -16,7 +15,7 @@ import { useRef, useState } from "react";
 import Message from "../common/Message";
 import { useEffect } from "react";
 
-const Chat = ({ route }) => {
+const Chat = ({ navigation, route }) => {
   const { logo, msg } = route.params;
   const [message, setMessage] = useState("");
   const [img, setImg] = useState({});
@@ -51,76 +50,15 @@ const Chat = ({ route }) => {
   const onChange = (e) => {
     setMessage(e);
   };
-
-  // const requestCameraPermission = async () => {
-  //   try {
-  //     const granted = await PermissionsAndroid.request(
-  //       PermissionsAndroid.PERMISSIONS.CAMERA
-  //       // {
-  //       //   title: "Cool Photo App Camera Permission",
-  //       //   message:
-  //       //     "Cool Photo App needs access to your camera " +
-  //       //     "so you can take awesome pictures.",
-  //       //   buttonNeutral: "Ask Me Later",
-  //       //   buttonNegative: "Cancel",
-  //       //   buttonPositive: "OK",
-  //       // }
-  //     );
-  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //       console.log(await launchCamera());
-  //     } else {
-  //       console.log("Camera permission denied");
-  //     }
-  //   } catch (err) {
-  //     console.warn(err);
-  //   }
-  // };
-
-  // const requestStoragePermission = async () => {
-  //   try {
-  //     const granted = await PermissionsAndroid.request(
-  //       PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
-  //       // {
-  //       //   title: "Cool Photo App Camera Permission",
-  //       //   message:
-  //       //     "Cool Photo App needs access to your camera " +
-  //       //     "so you can take awesome pictures.",
-  //       //   buttonNeutral: "Ask Me Later",
-  //       //   buttonNegative: "Cancel",
-  //       //   buttonPositive: "OK",
-  //       // }
-  //     );
-  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //       console.log("You can use the camera");
-  //     } else {
-  //       console.log("Camera permission denied");
-  //     }
-  //   } catch (err) {
-  //     console.warn(err);
-  //   }
-  // };
-
   const chooseImg = async () => {
-    // launchImageLibrary
     try {
-      // await requestCameraPermission();
-      // await requestStoragePermission();
-      // console.log(11);
-      // const result = await launchImageLibrary();
-      // console.warn(result);
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,
-        // allowsEditing: true,
-        // aspect: [4, 3],
         quality: 1,
       });
 
       console.log(result);
       if (!result?.canceled) {
-        // setChats([
-        //   ...chats,
-        //   { delevered: false, seen: false, src: result?.assets[0] },
-        // ]);
         setImg(result?.assets[0]);
       }
     } catch (e) {
@@ -149,13 +87,15 @@ const Chat = ({ route }) => {
       <View
         style={tw`p-3 bg-[${primary}] flex flex-row items-center justify-between`}
       >
-        <View style={tw`flex flex-row gap-3 items-center`}>
-          <Image
-            source={logo}
-            style={tw`h-10 w-10 border border-white rounded-full`}
-          />
-          <Text style={tw`text-white text-lg font-bold`}>{msg?.user}</Text>
-        </View>
+        <Pressable onPress={() => navigation?.navigate("Profile", { msg,logo })}>
+          <View style={tw`flex flex-row gap-3 items-center`}>
+            <Image
+              source={logo}
+              style={tw`h-10 w-10 border border-white rounded-full`}
+            />
+            <Text style={tw`text-white text-lg font-bold`}>{msg?.user}</Text>
+          </View>
+        </Pressable>
         {!msg?.ann && (
           <View style={tw`flex flex-row gap-6 items-center`}>
             <IonIcon name="call" color="#fff" size={20} />
@@ -165,11 +105,9 @@ const Chat = ({ route }) => {
         )}
       </View>
       <FlatList
-        // inverted
         ref={msgs}
         data={chats}
         renderItem={({ item }) => <Message msg={item} />}
-        // initialScrollIndex={chats.length - 1}
       />
       <View>
         <View

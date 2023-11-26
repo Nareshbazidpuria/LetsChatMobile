@@ -9,7 +9,7 @@ const FrndTab = ({ navigation, logo, msg }) => (
     style={tw`bg-white flex flex-row items-center justify-between gap-1 py-1 px-2`}
   >
     <View style={tw`flex flex-row items-center gap-1`}>
-      <Image source={logo} style={tw`h-16 w-16`} />
+      <Image source={{ uri: logo }} style={tw`h-16 w-16 rounded-full`} />
       <View>
         <Text style={tw`text-base font-bold`}>{msg?.user}</Text>
         <View style={tw`flex flex-row items-center gap-1`}>

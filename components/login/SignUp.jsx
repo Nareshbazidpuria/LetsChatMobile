@@ -1,15 +1,17 @@
-import { Pressable, TextInput, ToastAndroid } from "react-native";
+import { Keyboard, Pressable, TextInput, ToastAndroid } from "react-native";
 import { View, Text } from "react-native";
 import tw from "twrnc";
 import { bg, primary } from "../../utils/constant";
-import * as LocalAuthentication from "expo-local-authentication";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
 import IonIcon from "@expo/vector-icons/Ionicons";
 import LogoLable from "../common/LogoLable";
+import { signUpApi } from "../../api/apis";
 
 const SignUp = ({ navigation }) => {
+  const message = (msg) => ToastAndroid.show(msg, ToastAndroid.LONG);
+  const [loading, setLoading] = useState(false);
+  const [keyboardOpened, setKeyboardOpened] = useState(false);
   const [payload, setPayload] = useState({
     name: "",
     email: "",
@@ -17,36 +19,22 @@ const SignUp = ({ navigation }) => {
     password: "",
     cPass: "",
   });
-  const [loading, setLoading] = useState(false);
 
-  const message = (msg) => ToastAndroid.show(msg, ToastAndroid.LONG);
-
-  const touchBiometrics = async () => {
+  const signUp = async () => {
     try {
-      const res = await LocalAuthentication.authenticateAsync({
-        promptMessage: "Please touch sensor to login",
-      });
-      if (res?.success) {
-        const loginPayload = await AsyncStorage.getItem("loginPayload");
-        if (!loginPayload)
-          message("Authentication failed ! please enter credentials manually");
-        else login(JSON.parse(loginPayload));
+      setLoading(true);
+      const apiPayload = { ...payload };
+      delete apiPayload.cPass;
+      const res = await signUpApi(apiPayload);
+      if (res?.status === 201) {
+        message(res.data?.message);
+        navigation.navigate("Login");
       }
-    } catch (error) {}
-  };
-
-  const login = async (payload) => {
-    setLoading(true);
-    if (payload.userName === "nk" && payload.password === "a") {
-      setTimeout(() => {
-        message("Logged in successfully");
-        setLoading(false);
-        navigation.navigate("Home");
-      }, 300);
-      await AsyncStorage.setItem("loginPayload", JSON.stringify(payload));
-      await AsyncStorage.setItem("user", JSON.stringify(payload));
-    } else message("Invalid credentials");
-    setLoading(false);
+    } catch (error) {
+      message(error?.data?.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onChange = (key, value) => {
@@ -56,15 +44,29 @@ const SignUp = ({ navigation }) => {
     });
   };
 
+  useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", () =>
+      setKeyboardOpened(true)
+    );
+    const hide = Keyboard.addListener("keyboardDidHide", () =>
+      setKeyboardOpened(false)
+    );
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
   return (
     <>
       {loading ? (
-        <View style={tw`flex-1 justify-center items-center`}>
-          <ActivityIndicator size={50} />
+        <View style={tw`flex-1 justify-center items-center gap-5`}>
+          <ActivityIndicator size={50} color={primary} />
+          <Text style={tw`text-lg`}>Signing up...</Text>
         </View>
       ) : (
-        <View style={tw`flex p-5 gap-8 `}>
-          <LogoLable label="Create your new account" />
+        <View style={tw`flex-1 p-5 justify-evenly`}>
+          {!keyboardOpened && <LogoLable label="Create your new account" />}
           <View style={tw`justify-center gap-5`}>
             <View
               style={tw`flex flex-row items-center gap-2 p-2 rounded-md bg-[${bg}]`}
@@ -128,7 +130,7 @@ const SignUp = ({ navigation }) => {
                 value={payload?.cPass}
               />
             </View>
-            <Pressable onPress={() => login(payload)} style={tw`text-lg`}>
+            <Pressable onPress={signUp} style={tw`text-lg`}>
               <Text
                 style={tw`text-lg text-center text-white py-2 rounded-md font-extrabold bg-[${primary}]`}
               >

@@ -4,16 +4,19 @@ import IonIcon from "@expo/vector-icons/Ionicons";
 import tw from "twrnc";
 import { useState } from "react";
 import { primary } from "../../utils/constant";
+import moment from "moment";
+import profile from "../../assets/profile.png";
 
-const FrndTab = ({ navigation, logo, msg, selected, setSelected }) => {
+const FrndTab = ({ navigation, user, selected, setSelected }) => {
+  const [lastMsg, setLastMsg] = useState(user?.room?.lastMessage);
   const onPress = () => {
-    navigation.navigate("Chat", { logo, msg });
+    navigation.navigate("Chat", { user });
   };
 
   const onLongPress = () => {
-    if (selected.includes(msg.user))
-      setSelected(selected.filter((e) => e !== msg.user));
-    else setSelected([...selected, msg.user]);
+    if (selected.includes(user?._id))
+      setSelected(selected.filter((e) => e !== user?._id));
+    else setSelected([...selected, user?._id]);
   };
 
   return (
@@ -21,22 +24,28 @@ const FrndTab = ({ navigation, logo, msg, selected, setSelected }) => {
       onPress={selected.length ? onLongPress : onPress}
       onLongPress={onLongPress}
       style={tw`${
-        selected.includes(msg.user) ? "bg-gray-100" : "bg-white"
+        selected.includes(user?._id) ? "bg-gray-100" : "bg-white"
       } flex flex-row items-center justify-between gap-1 py-1 px-2`}
     >
-      <View style={tw`flex flex-row items-center gap-1`}>
-        <Image source={{ uri: logo }} style={tw`h-16 w-16 rounded-full`} />
-
+      <View style={tw`flex flex-row items-center gap-3`}>
+        <Image
+          source={user?.profilePic || profile}
+          style={tw`h-14 w-14 rounded-full`}
+        />
         <View>
-          <Text style={tw`text-base font-bold`}>{msg?.user}</Text>
+          <Text style={tw`text-lg font-bold`}>{user?.name}</Text>
           <View style={tw`flex flex-row items-center gap-1`}>
-            <IonIcon name="checkmark-circle-outline" color="gray" />
-            <Text style={tw`text-xs text-gray-400`}>{msg?.text}</Text>
+            {lastMsg && (
+              <IonIcon name="checkmark-circle-outline" color="gray" />
+            )}
+            <Text style={tw`text-xs text-gray-400 ${!lastMsg ? "italic" : ""}`}>
+              {lastMsg?.message || "Start Conversation"}
+            </Text>
           </View>
         </View>
       </View>
       <View>
-        {selected.includes(msg.user) ? (
+        {selected.includes(user?._id) ? (
           <IonIcon
             name="checkmark-circle"
             color={primary}
@@ -44,7 +53,14 @@ const FrndTab = ({ navigation, logo, msg, selected, setSelected }) => {
             style={tw`mr-3`}
           />
         ) : (
-          <Text style={tw`text-gray-400 mr-2`}>{msg?.time}</Text>
+          lastMsg && (
+            <Text style={tw`text-gray-400 mr-2`}>
+              {moment(user?.room?.lastMessage?.createdAt) <
+              moment(new Date()).startOf("day")
+                ? moment(user?.room?.lastMessage?.createdAt).format("D MMM")
+                : moment(user?.room?.lastMessage?.createdAt).format("hh:mm A")}
+            </Text>
+          )
         )}
       </View>
     </Pressable>

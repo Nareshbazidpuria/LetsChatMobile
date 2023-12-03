@@ -2,7 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import Login from "./components/login";
 import { PermissionsAndroid } from "react-native";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./components/home";
 import SignUp from "./components/login/SignUp";
@@ -11,8 +11,11 @@ import { primary } from "./utils/constant";
 import Chat from "./components/chat";
 import Profile from "./components/profile";
 
+export let navigateRef;
+
 const App = () => {
   const Stack = createNativeStackNavigator();
+  navigateRef = useRef();
 
   const permissions = {
     notification: async () => {
@@ -63,7 +66,7 @@ const App = () => {
 
   return (
     <MenuProvider>
-      <NavigationContainer>
+      <NavigationContainer ref={navigateRef}>
         <StatusBar
           style="light"
           translucent={false}

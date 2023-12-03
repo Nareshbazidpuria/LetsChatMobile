@@ -10,27 +10,82 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { primary } from "../../utils/constant";
 import Bicon from "../common/Bicon";
+import { getUsersApi } from "../../api/apis";
+import profile from "../../assets/profile.png";
+import { baseURL } from "../../api/axios";
 
 const Friends = ({ navigation }) => {
   const [chats, setChats] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [selected, setSelected] = useState([]);
 
-  const fetccUser = async () => {
-    setRefreshing(true);
-    setSelected([]);
-    const res = await axios.get("https://dummyjson.com/users");
-    const users = res?.data?.users?.map((user) => ({
-      ...user,
-      user: user?.firstName + " " + user?.lastName,
-      userName: user?.username,
-      text: "Hi",
-      time: "7:30 AM",
-      image: user?.image,
-    }));
+  /*
 
-    if (users?.length) setChats(users);
-    setRefreshing(false);
+    [
+      {
+        "_id": "64cde7ca988cb0fe2cf3a3e1",
+        "name": "Testing User",
+        "userName": "test",
+        "email": "nkbazidpuria@gmail.com",
+        "status": "active",
+        "lastJoined": "64cde7f2988cb0fe2cf3a41a",
+        "room": {
+          "_id": "64cde7f2988cb0fe2cf3a41a",
+          "lastMessage": {
+            "_id": "64cde819988cb0fe2cf3a453",
+            "message": "hii",
+            "createdAt": "2023-08-05T06:11:37.192Z",
+            "type": "outgoing"
+          }
+        }
+      }
+    ]
+
+
+    */
+
+  const fetccUser = async () => {
+    try {
+      setRefreshing(true);
+      setSelected([]);
+      setChats([]);
+      const res = await getUsersApi({ type: "friends" });
+      if (res?.status === 200) {
+        const users = res?.data?.data?.data?.map((user) => {
+          if (user?.profilePic)
+            user = {
+              ...user,
+              profilePic: { uri: baseURL.split("mob")[0] + user.profilePic },
+            };
+          return user;
+        });
+        setChats(users);
+        // console.log(JSON.stringify(users, null, 2));
+        // const users = res?.data?.data?.data?.map((user) => ({
+        //   ...user,
+        //   user: user?.name,
+        //   userName: user?.userName,
+        //   text: user?.room?.lastMessage?.message,
+        //   time: user?.room?.lastMessage?.createdAt,
+        //   image: user?.image ? { uri: user?.image } : profile,
+        // }));
+        // setChats(users);
+      }
+      // const res = await axios.get("https://dummyjson.com/users");
+      // const users = res?.data?.users?.map((user) => ({
+      //   ...user,
+      //   user: user?.firstName + " " + user?.lastName,
+      //   userName: user?.username,
+      //   text: "Hi",
+      //   time: "7:30 AM",
+      //   image: user?.image ? { uri: user?.image } : profile,
+      // }));
+      // if (users?.length) setChats(users);
+    } catch (error) {
+      console.log(error?.data);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => {
@@ -44,8 +99,7 @@ const Friends = ({ navigation }) => {
         renderItem={({ item }) => (
           <FrndTab
             navigation={navigation}
-            msg={item}
-            logo={item?.image}
+            user={item}
             selected={selected}
             setSelected={setSelected}
           />
@@ -74,8 +128,8 @@ const Friends = ({ navigation }) => {
         style={tw`absolute bottom-8 right-3 bg-[${primary}] rounded-full p-4`}
         onPress={() =>
           navigation.navigate("Chat", {
-            logo: random,
-            msg: { user: "Annonymous Users", ann: true },
+            // logo: random,
+            user: { name: "Annonymous Users", ann: true, profilePic: random },
           })
         }
       >

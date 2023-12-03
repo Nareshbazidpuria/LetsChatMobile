@@ -5,18 +5,24 @@ import {
   ActivityIndicator,
   View,
   Text,
+  Keyboard,
 } from "react-native";
 import tw from "twrnc";
 import { bg, primary } from "../../utils/constant";
 import * as LocalAuthentication from "expo-local-authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import IonIcon from "@expo/vector-icons/Ionicons";
 import LogoLable from "../common/LogoLable";
+import { loginApi } from "../../api/apis";
 
 const Login = ({ navigation }) => {
-  const [payload, setPayload] = useState({ userName: "", password: "" });
+  const [payload, setPayload] = useState({
+    userName: "naresh_bazidpuria",
+    password: "",
+  });
   const [loading, setLoading] = useState(false);
+  const [keyboardOpened, setKeyboardOpened] = useState(false);
 
   const message = (msg) => ToastAndroid.show(msg, ToastAndroid.LONG);
 
@@ -34,18 +40,26 @@ const Login = ({ navigation }) => {
     } catch (error) {}
   };
 
-  const login = async (payload) => {
-    setLoading(true);
-    if (payload.userName === "nk" && payload.password === "a") {
-      setTimeout(() => {
-        message("Logged in successfully");
-        setLoading(false);
+  const login = async (data) => {
+    try {
+      setLoading(true);
+      const apiPayload = data || { ...payload };
+      const res = await loginApi(apiPayload);
+      if (res?.status === 200) {
+        message(res.data?.message);
+        await AsyncStorage.setItem(
+          "token",
+          JSON.stringify(res?.data?.data?.accessToken)
+        );
+        await AsyncStorage.setItem("loginPayload", JSON.stringify(apiPayload));
+        await AsyncStorage.setItem("user", JSON.stringify(apiPayload));
         navigation.navigate("Home");
-      }, 300);
-      await AsyncStorage.setItem("loginPayload", JSON.stringify(payload));
-      await AsyncStorage.setItem("user", JSON.stringify(payload));
-    } else message("Invalid credentials");
-    setLoading(false);
+      }
+    } catch (error) {
+      message(error?.data?.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onChange = (key, value) => {
@@ -55,6 +69,19 @@ const Login = ({ navigation }) => {
     });
   };
 
+  useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", () =>
+      setKeyboardOpened(true)
+    );
+    const hide = Keyboard.addListener("keyboardDidHide", () =>
+      setKeyboardOpened(false)
+    );
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
   return (
     <>
       {loading ? (
@@ -62,8 +89,8 @@ const Login = ({ navigation }) => {
           <ActivityIndicator size={50} />
         </View>
       ) : (
-        <View style={tw`flex p-5 gap-8 `}>
-          <LogoLable label="Login to your account" />
+        <View style={tw`flex-1 p-5 justify-evenly`}>
+          {!keyboardOpened && <LogoLable label="Login to your account" />}
           <View style={tw`justify-center gap-5`}>
             <View
               style={tw`flex flex-row items-center gap-2 p-2 rounded-md bg-[${bg}]`}

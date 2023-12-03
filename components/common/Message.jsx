@@ -3,16 +3,52 @@ import IonIcon from "@expo/vector-icons/Ionicons";
 import tw from "twrnc";
 import moment from "moment/moment";
 import { useEffect, useState } from "react";
+import { msgType } from "../../utils/constant";
 
 const Message = ({ msg, onPress }) => {
-  const { type, delevered, seen, user } = msg;
+  // const { type, delevered, seen, user } = msg;
+  const {
+    delevered = true,
+    _id,
+    roomId,
+    sentBy,
+    message,
+    contentType,
+    read,
+    createdAt,
+    type,
+    user,
+  } = msg;
+  /*
+
+
+
+
+{
+  "_id": "64cde80b988cb0fe2cf3a443",
+  "roomId": "64cde7f2988cb0fe2cf3a41a",
+  "sentBy": "64cde7ca988cb0fe2cf3a3e1",
+  "message": "Hi",
+  "contentType": "text",
+  "read": true,
+  "createdAt": "2023-08-05T06:11:23.944Z",
+  "updatedAt": "2023-08-05T06:11:31.956Z",
+  "__v": 0,
+  "type": "incomming"
+}
+
+
+
+
+*/
+
   const [uniqueId, setUniqueId] = useState("");
   const colors = ["#06a600", "#8aa600", "#dbb300", "#7000a8", "#a80022"];
 
   useEffect(() => {
     if (user) {
       let generatedId = "";
-      user.split("").forEach((char) => {
+      sentBy.split("").forEach((char) => {
         const code = char.charCodeAt(0);
         if (code >= 97 && code <= 122 && generatedId.length < 5)
           generatedId += char;
@@ -24,7 +60,7 @@ const Message = ({ msg, onPress }) => {
   return (
     <Pressable
       style={tw`p-2 rounded-xl bg-[#d4f9ff] self-${
-        type === "in" ? "start rounded-bl-none" : "end rounded-br-none"
+        type === msgType.in ? "start rounded-bl-none" : "end rounded-br-none"
       } max-w-4/5 my-1 mx-3 overflow-hidden`}
       onPress={onPress}
     >
@@ -33,7 +69,7 @@ const Message = ({ msg, onPress }) => {
           style={{
             ...tw`text-xs font-bold`,
             color:
-              type === "in"
+              type === msgType.in
                 ? colors[parseInt(Math.random() * 4 + 1)]
                 : "#00a66c",
           }}
@@ -56,18 +92,16 @@ const Message = ({ msg, onPress }) => {
           }
         />
       ) : (
-        <Text style={tw`mr-3`}>
-          {msg?.text || "Hi there, I am using Let's Chat."}
-        </Text>
+        <Text style={tw`mr-3`}>{message}</Text>
       )}
       <View style={tw`flex flex-row gap-1 justify-end items-center`}>
         <Text style={tw`text-xs text-gray-400`}>
-          {msg?.time ? moment(msg?.time).format("h:mm A") : "7:30 AM"}
+          {moment(createdAt).format("h:mm A")}
         </Text>
-        {type !== "in" ? (
+        {type === msgType.out ? (
           <IonIcon
             name={`checkmark-${
-              seen
+              read
                 ? "done-circle"
                 : delevered
                 ? "done-circle-outline"

@@ -64,6 +64,7 @@ const Chat = ({ navigation, route }) => {
         seen: false,
         text: message,
         time: new Date(),
+        user: msg?.user,
       },
     ]);
     setMessage("");
@@ -129,7 +130,7 @@ const Chat = ({ navigation, route }) => {
   useEffect(() => {
     setTimeout(() => {
       scrollChat();
-    }, 50);
+    }, 70);
   }, []);
 
   return (
@@ -161,7 +162,10 @@ const Chat = ({ navigation, route }) => {
         ref={msgs}
         data={chats}
         renderItem={({ item }) => (
-          <Message msg={item} onPress={() => onMsgPress(item)} />
+          <Message
+            msg={{ ...item, user: msg?.ann ? msg?.user : false }}
+            onPress={() => onMsgPress(item)}
+          />
         )}
       />
       <View>

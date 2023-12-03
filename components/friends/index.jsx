@@ -14,9 +14,11 @@ import Bicon from "../common/Bicon";
 const Friends = ({ navigation }) => {
   const [chats, setChats] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [selected, setSelected] = useState([]);
 
   const fetccUser = async () => {
     setRefreshing(true);
+    setSelected([]);
     const res = await axios.get("https://dummyjson.com/users");
     const users = res?.data?.users?.map((user) => ({
       ...user,
@@ -26,6 +28,7 @@ const Friends = ({ navigation }) => {
       time: "7:30 AM",
       image: user?.image,
     }));
+
     if (users?.length) setChats(users);
     setRefreshing(false);
   };
@@ -39,7 +42,13 @@ const Friends = ({ navigation }) => {
       <FlatList
         data={chats}
         renderItem={({ item }) => (
-          <FrndTab navigation={navigation} msg={item} logo={item?.image} />
+          <FrndTab
+            navigation={navigation}
+            msg={item}
+            logo={item?.image}
+            selected={selected}
+            setSelected={setSelected}
+          />
         )}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={fetccUser} />
@@ -70,7 +79,7 @@ const Friends = ({ navigation }) => {
           })
         }
       >
-        <Image source={annony} style={tw`h-9 w-9`} />
+        <Image source={annony} style={tw`h-7 w-7`} />
       </Pressable>
     </View>
   );

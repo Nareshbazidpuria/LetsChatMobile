@@ -2,9 +2,24 @@ import { Dimensions, Image, Pressable, Text, View } from "react-native";
 import IonIcon from "@expo/vector-icons/Ionicons";
 import tw from "twrnc";
 import moment from "moment/moment";
+import { useEffect, useState } from "react";
 
 const Message = ({ msg, onPress }) => {
-  const { type, delevered, seen } = msg;
+  const { type, delevered, seen, user } = msg;
+  const [uniqueId, setUniqueId] = useState("");
+  const colors = ["#06a600", "#8aa600", "#dbb300", "#7000a8", "#a80022"];
+
+  useEffect(() => {
+    if (user) {
+      let generatedId = "";
+      user.split("").forEach((char) => {
+        const code = char.charCodeAt(0);
+        if (code >= 97 && code <= 122 && generatedId.length < 5)
+          generatedId += char;
+      });
+      setUniqueId(generatedId);
+    }
+  }, [user]);
 
   return (
     <Pressable
@@ -13,6 +28,19 @@ const Message = ({ msg, onPress }) => {
       } max-w-4/5 my-1 mx-3 overflow-hidden`}
       onPress={onPress}
     >
+      {user && (
+        <Text
+          style={{
+            ...tw`text-xs font-bold`,
+            color:
+              type === "in"
+                ? colors[parseInt(Math.random() * 4 + 1)]
+                : "#00a66c",
+          }}
+        >
+          User-{uniqueId}
+        </Text>
+      )}
       {msg?.src?.uri ? (
         <Image
           source={{ uri: msg.src.uri }}

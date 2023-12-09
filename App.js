@@ -10,6 +10,8 @@ import { MenuProvider } from "react-native-popup-menu";
 import { primary } from "./utils/constant";
 import Chat from "./components/chat";
 import Profile from "./components/profile";
+import { Provider } from "react-redux";
+import store from "./redux/store";
 
 export let navigateRef;
 
@@ -65,28 +67,30 @@ const App = () => {
   }, []);
 
   return (
-    <MenuProvider>
-      <NavigationContainer ref={navigateRef}>
-        <StatusBar
-          style="light"
-          translucent={false}
-          backgroundColor={primary}
-        />
-        <Stack.Navigator
-          initialRouteName="Home"
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="Chat" component={Chat} />
-          <Stack.Screen name="Profile" component={Profile} />
-          <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="SignUp" component={SignUp} />
-        </Stack.Navigator>
-        {/* <Login /> */}
-      </NavigationContainer>
-    </MenuProvider>
+    <Provider store={store}>
+      <MenuProvider>
+        <NavigationContainer ref={navigateRef}>
+          <StatusBar
+            style="light"
+            translucent={false}
+            backgroundColor={primary}
+          />
+          <Stack.Navigator
+            initialRouteName="Home"
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
+            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="Chat" component={Chat} />
+            <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="SignUp" component={SignUp} />
+          </Stack.Navigator>
+          {/* <Login /> */}
+        </NavigationContainer>
+      </MenuProvider>
+    </Provider>
   );
 };
 

@@ -14,10 +14,14 @@ import {
 import IonIcon from "@expo/vector-icons/Ionicons";
 import Requests from "../request";
 import People from "../people";
+import { useDispatch, useSelector } from "react-redux";
+import { setSearchText } from "../../redux/common";
 
 const Home = ({ navigation }) => {
   const Tab = createMaterialTopTabNavigator();
   const seachInp = useRef();
+  const dispatch = useDispatch();
+  const searchText = useSelector((state) => state.searchText);
   const [seaching, setSeaching] = useState(false);
 
   const authenticate = async () => {
@@ -47,14 +51,22 @@ const Home = ({ navigation }) => {
       >
         {seaching ? (
           <View
-            style={tw`w-full bg-white rounded flex flex-row items-center py-1 px-3 justify-between`}
+            style={tw`w-full bg-white rounded-full flex flex-row items-center py-1 px-3 justify-between`}
           >
-            <TextInput ref={seachInp} style={tw`w-[90%]`} />
+            <TextInput
+              ref={seachInp}
+              style={tw`w-[90%]`}
+              value={searchText}
+              onChangeText={(e) => dispatch(setSearchText(e))}
+            />
             <IonIcon
               name="close"
               color="gray"
               size={16}
-              onPress={() => setSeaching(false)}
+              onPress={() => {
+                dispatch(setSearchText(""));
+                setSeaching(false);
+              }}
             />
           </View>
         ) : (

@@ -13,8 +13,10 @@ import Bicon from "../common/Bicon";
 import { getUsersApi } from "../../api/apis";
 import profile from "../../assets/profile.png";
 import { baseURL } from "../../api/axios";
+import { useSelector } from "react-redux";
 
 const Friends = ({ navigation }) => {
+  const searchText = useSelector((state) => state.searchText);
   const [chats, setChats] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [selected, setSelected] = useState([]);
@@ -44,12 +46,11 @@ const Friends = ({ navigation }) => {
 
     */
 
-  const fetccUser = async () => {
+  const fetccUser = async (params = {}) => {
     try {
       setRefreshing(true);
       setSelected([]);
-      setChats([]);
-      const res = await getUsersApi({ type: "friends" });
+      const res = await getUsersApi({ ...params, type: "friends" });
       if (res?.status === 200) {
         const users = res?.data?.data?.data?.map((user) => {
           if (user?.profilePic)
@@ -70,7 +71,8 @@ const Friends = ({ navigation }) => {
         //   image: user?.image ? { uri: user?.image } : profile,
         // }));
         // setChats(users);
-      }
+      } else setChats([]);
+
       // const res = await axios.get("https://dummyjson.com/users");
       // const users = res?.data?.users?.map((user) => ({
       //   ...user,
@@ -82,15 +84,15 @@ const Friends = ({ navigation }) => {
       // }));
       // if (users?.length) setChats(users);
     } catch (error) {
-      console.log(error?.data);
+      setChats([]);
     } finally {
       setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    fetccUser();
-  }, []);
+    fetccUser(searchText ? { name: searchText } : {});
+  }, [searchText]);
 
   return (
     <View style={tw`flex-1 bg-white`}>
@@ -128,7 +130,6 @@ const Friends = ({ navigation }) => {
         style={tw`absolute bottom-8 right-3 bg-[${primary}] rounded-full p-4`}
         onPress={() =>
           navigation.navigate("Chat", {
-            // logo: random,
             user: { name: "Annonymous Users", ann: true, profilePic: random },
           })
         }

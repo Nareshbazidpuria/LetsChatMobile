@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { Navigate } from "../utils/navigate";
 
-export const baseURL = "http://192.168.94.201:4000/mob";
+export const baseURL = "http://192.168.21.201:4000/mob";
 
 export const Axios = axios.create({ baseURL });
 

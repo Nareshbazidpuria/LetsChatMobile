@@ -4,14 +4,25 @@ import logo from "../../assets/icon.png";
 import tw from "twrnc";
 import ReqTab from "../common/ReqTab";
 import empty from "../../assets/empty.gif";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { setSearchText } from "../../redux/common";
 
-const Requests = () => {
+const Requests = ({ navigation }) => {
+  const dispatch = useDispatch();
   const chats = [
     { userName: "ramesh_nath", user: "Ramesh Nath" },
     { userName: "sanjay", user: "Sanjay" },
     { userName: "gaurav", user: "Gaurav" },
     { userName: "rinku", user: "Rinku" },
   ];
+
+  useEffect(() => {
+    navigation.addListener("focus", () =>
+      dispatch(setSearchText({ text: "", open: false }))
+    );
+  }, []);
+
   return (
     <View style={tw`flex-1 bg-white`}>
       <FlatList

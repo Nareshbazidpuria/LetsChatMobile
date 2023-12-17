@@ -1,4 +1,6 @@
 import {
+  Alert,
+  BackHandler,
   FlatList,
   Image,
   Pressable,
@@ -9,11 +11,10 @@ import {
 } from "react-native";
 import tw from "twrnc";
 import * as ImagePicker from "expo-image-picker";
-import { annRoom, primary } from "../../utils/constant";
+import { annRoom, msgType, primary } from "../../utils/constant";
 import IonIcon from "@expo/vector-icons/Ionicons";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Message from "../common/Message";
-import { useEffect } from "react";
 import ImgPreview from "../common/ImgPreview";
 import profile from "../../assets/profile.png";
 
@@ -24,13 +25,15 @@ import {
 import { getMsgsApi } from "../../api/apis";
 
 const Chat = ({ navigation, route }) => {
-  const { user } = route.params;
+  const { user, socket } = route.params;
   const msgs = useRef();
   const toast = (msg) => ToastAndroid.show(msg, ToastAndroid.LONG);
   const [message, setMessage] = useState("");
   const [img, setImg] = useState({});
   const [preview, setPreview] = useState(false);
   const [scrollEnd, setScrollEnd] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [receivedMsg, setReceivedMsg] = useState(false);
   const [chats, setChats] = useState([
     // { delevered: true, seen: true },
     // { type: "in" },
@@ -60,17 +63,24 @@ const Chat = ({ navigation, route }) => {
   ]);
 
   const sendMsg = () => {
-    setChats([
-      ...chats,
-      {
-        delevered: false,
-        seen: false,
-        text: message,
-        time: new Date(),
-        user: user?.name,
-      },
-    ]);
-    setMessage("");
+    if (socket) {
+      setChats([
+        ...chats,
+        {
+          delevered: false,
+          seen: false,
+          message,
+          type: msgType.out,
+          time: new Date(),
+          user: user?.name,
+        },
+      ]);
+      setMessage("");
+      socket.emit("message", {
+        message,
+        roomId: user?.room?._id,
+      });
+    }
   };
 
   const sendFile = () => {
@@ -128,10 +138,11 @@ const Chat = ({ navigation, route }) => {
 
   const joinChat = async () => {
     try {
+      socket.emit("join", user.room._id);
       // setPage(1);
       // typeMessage.current.focus();
       // setLoadingChat(true);
-      setChats([]);
+      // setChats([]);
       if (user?.room?._id) {
         const res = await getMsgsApi(user.room._id, 1);
         if (res?.status === 200 && user.room._id !== annRoom) {
@@ -145,6 +156,11 @@ const Chat = ({ navigation, route }) => {
     } catch (error) {
       // setLoadingChat(false);
       // console.log(error);
+    } finally {
+      setLoaded(true);
+      setTimeout(() => {
+        scrollChat();
+      }, 500);
     }
   };
 
@@ -160,6 +176,39 @@ const Chat = ({ navigation, route }) => {
 
   useEffect(() => {
     joinChat();
+    return () => socket.off();
+  }, []);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (socket) socket.emit("leave", user.room._id);
+      }
+    );
+    return () => backHandler.remove();
+  }, []);
+
+  useEffect(() => {
+    if (loaded) socket.on("receive", (msg) => setReceivedMsg(msg));
+  }, [loaded]);
+
+  useEffect(() => {
+    if (receivedMsg)
+      setChats([
+        ...chats,
+        {
+          message: receivedMsg.message,
+          time: receivedMsg.createdAt,
+          type: receivedMsg.sentBy === user._id ? msgType.in : msgType.out,
+        },
+      ]);
+  }, [receivedMsg]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      // document.getElementById("testttt").style.border = "1px solid";
+    }, 5000);
   }, []);
 
   return (
@@ -170,7 +219,7 @@ const Chat = ({ navigation, route }) => {
         <Pressable
         // onPress={() => navigation?.navigate("Profile", { user })}
         >
-          <View style={tw`flex flex-row gap-3 items-center`}>
+          <View style={tw`flex flex-row gap-3 items-center`} >
             <Image
               source={user?.profilePic || profile}
               style={tw`h-10 w-10 border border-white rounded-full`}

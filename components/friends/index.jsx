@@ -1,25 +1,33 @@
-import { FlatList, Pressable, RefreshControl, Text } from "react-native";
-import { View } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  RefreshControl,
+  Text,
+  Image,
+  View,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import annony from "../../assets/annony.png";
 import random from "../../assets/random.gif";
 import empty from "../../assets/empty.gif";
 import tw from "twrnc";
-import { Image } from "react-native";
 import FrndTab from "../common/FrndTab";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { primary } from "../../utils/constant";
 import Bicon from "../common/Bicon";
 import { getUsersApi } from "../../api/apis";
-import profile from "../../assets/profile.png";
-import { baseURL } from "../../api/axios";
-import { useSelector } from "react-redux";
+import { baseURL, socketURL } from "../../api/axios";
+import { useDispatch, useSelector } from "react-redux";
+import { setSearchText } from "../../redux/common";
+import { io } from "socket.io-client";
 
 const Friends = ({ navigation }) => {
+  const dispatch = useDispatch();
   const searchText = useSelector((state) => state.searchText);
   const [chats, setChats] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [selected, setSelected] = useState([]);
+  const [socket, setSocket] = useState(null);
 
   /*
 
@@ -91,8 +99,24 @@ const Friends = ({ navigation }) => {
   };
 
   useEffect(() => {
-    fetccUser(searchText ? { name: searchText } : {});
-  }, [searchText]);
+    fetccUser(searchText?.text ? { name: searchText?.text } : {});
+  }, [searchText.text]);
+
+  useEffect(() => {
+    navigation.addListener("focus", () =>
+      dispatch(setSearchText({ text: "", open: false }))
+    );
+  }, []);
+
+  useEffect(async () => {
+    const socket = io(socketURL, {
+      auth: { token: await AsyncStorage.getItem("token") },
+    });
+    setSocket(socket);
+    return () => {
+      if (socket) socket.disconnect();
+    };
+  }, []);
 
   return (
     <View style={tw`flex-1 bg-white`}>
@@ -104,6 +128,7 @@ const Friends = ({ navigation }) => {
             user={item}
             selected={selected}
             setSelected={setSelected}
+            socket={socket}
           />
         )}
         refreshControl={

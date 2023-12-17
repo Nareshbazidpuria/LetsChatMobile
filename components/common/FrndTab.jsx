@@ -2,15 +2,16 @@ import { Image, Pressable } from "react-native";
 import { Text, View } from "react-native";
 import IonIcon from "@expo/vector-icons/Ionicons";
 import tw from "twrnc";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { primary } from "../../utils/constant";
 import moment from "moment";
 import profile from "../../assets/profile.png";
 
-const FrndTab = ({ navigation, user, selected, setSelected }) => {
+const FrndTab = ({ navigation, user, selected, setSelected, socket }) => {
   const [lastMsg, setLastMsg] = useState(user?.room?.lastMessage);
+
   const onPress = () => {
-    navigation.navigate("Chat", { user });
+    if (socket) navigation.navigate("Chat", { user, socket });
   };
 
   const onLongPress = () => {

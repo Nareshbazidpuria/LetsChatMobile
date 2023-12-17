@@ -4,8 +4,13 @@ import logo from "../../assets/icon.png";
 import tw from "twrnc";
 import PeopTab from "../common/PeopTab";
 import ReqTab from "../common/ReqTab";
+import { useDispatch } from "react-redux";
+import { setSearchText } from "../../redux/common";
+import { useEffect } from "react";
 
-const People = () => {
+const People = ({ navigation }) => {
+  const dispatch = useDispatch();
+
   const chats = [
     { userName: "ramesh_nath", user: "Ramesh Nath", reqSent: true },
     { userName: "sanjay", user: "Sanjay" },
@@ -24,6 +29,13 @@ const People = () => {
     { userName: "sanjay", user: "Sanjay" },
     { userName: "rinku", user: "Rinku", reqReceived: true },
   ];
+
+  useEffect(() => {
+    navigation.addListener("focus", () =>
+      dispatch(setSearchText({ text: "", open: false }))
+    );
+  }, []);
+
   return (
     <View style={tw`flex-1 bg-white`}>
       <ScrollView>

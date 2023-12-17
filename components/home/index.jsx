@@ -22,7 +22,6 @@ const Home = ({ navigation }) => {
   const seachInp = useRef();
   const dispatch = useDispatch();
   const searchText = useSelector((state) => state.searchText);
-  const [seaching, setSeaching] = useState(false);
 
   const authenticate = async () => {
     const user = await AsyncStorage.getItem("user");
@@ -39,34 +38,33 @@ const Home = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    if (seaching && seachInp?.current) seachInp.current.focus();
-  }, [seaching, seachInp]);
+    if (searchText?.open && seachInp?.current) seachInp.current.focus();
+  }, [searchText?.open, seachInp]);
 
   return (
     <>
       <View
         style={tw`px-5 py-${
-          seaching ? 1 : 2
+          searchText?.open ? 1 : 2
         } bg-[${primary}] flex flex-row items-center justify-between`}
       >
-        {seaching ? (
+        {searchText?.open ? (
           <View
             style={tw`w-full bg-white rounded-full flex flex-row items-center py-1 px-3 justify-between`}
           >
             <TextInput
               ref={seachInp}
               style={tw`w-[90%]`}
-              value={searchText}
-              onChangeText={(e) => dispatch(setSearchText(e))}
+              value={searchText?.text}
+              onChangeText={(e) =>
+                dispatch(setSearchText({ ...searchText, text: e }))
+              }
             />
             <IonIcon
               name="close"
               color="gray"
               size={16}
-              onPress={() => {
-                dispatch(setSearchText(""));
-                setSeaching(false);
-              }}
+              onPress={() => dispatch(setSearchText({ text: "", open: false }))}
             />
           </View>
         ) : (
@@ -77,7 +75,9 @@ const Home = ({ navigation }) => {
                 name="search"
                 size={18}
                 color="#ffffff"
-                onPress={() => setSeaching(true)}
+                onPress={() =>
+                  dispatch(setSearchText({ ...searchText, open: true }))
+                }
               />
               <Menu>
                 <MenuTrigger

@@ -1,52 +1,69 @@
-import { FlatList, ScrollView } from "react-native";
+import { FlatList, RefreshControl, ScrollView } from "react-native";
 import { View } from "react-native";
 import logo from "../../assets/icon.png";
 import tw from "twrnc";
 import PeopTab from "../common/PeopTab";
 import ReqTab from "../common/ReqTab";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setSearchText } from "../../redux/common";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { getUsersApi } from "../../api/apis";
+import { baseURL } from "../../api/axios";
 
 const People = ({ navigation }) => {
   const dispatch = useDispatch();
+  const searchText = useSelector((state) => state.searchText);
+  const [people, setPeople] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const chats = [
-    { userName: "ramesh_nath", user: "Ramesh Nath", reqSent: true },
-    { userName: "sanjay", user: "Sanjay" },
-    { userName: "ramesh_nath", user: "Ramesh Nath", reqSent: true },
-    { userName: "rinku", user: "Rinku", reqReceived: true },
-    { userName: "rinku", user: "Rinku", reqReceived: true },
-    { userName: "sanjay", user: "Sanjay" },
-    { userName: "sanjay", user: "Sanjay" },
-    { userName: "rinku", user: "Rinku", reqReceived: true },
-    { userName: "sanjay", user: "Sanjay" },
-    { userName: "sanjay", user: "Sanjay" },
-    { userName: "gaurav", user: "Gaurav", reqSent: true },
-    { userName: "gaurav", user: "Gaurav", reqSent: true },
-    { userName: "rinku", user: "Rinku", reqReceived: true },
-    { userName: "sanjay", user: "Sanjay" },
-    { userName: "sanjay", user: "Sanjay" },
-    { userName: "rinku", user: "Rinku", reqReceived: true },
-  ];
+  const fetccUser = async (params = {}) => {
+    try {
+      setRefreshing(true);
+      const res = await getUsersApi(params);
+      if (res?.status === 200) {
+        const users = res?.data?.data?.data?.map((user) => {
+          if (user?.profilePic)
+            user = {
+              ...user,
+              profilePic: { uri: baseURL.split("mob")[0] + user.profilePic },
+            };
+          return user;
+        });
+        setPeople(users);
+      } else setPeople([]);
+    } catch (error) {
+      setPeople([]);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    navigation.addListener("focus", () =>
-      dispatch(setSearchText({ text: "", open: false }))
-    );
+    fetccUser(searchText?.text ? { name: searchText?.text } : {});
+  }, [searchText.text]);
+
+  useEffect(() => {
+    navigation.addListener("focus", () => {
+      dispatch(setSearchText({ text: "", open: false }));
+      fetccUser();
+    });
   }, []);
 
   return (
     <View style={tw`flex-1 bg-white`}>
-      <ScrollView>
-        {chats?.map((chat, i) =>
-          chat.reqReceived ? (
-            <ReqTab key={i} msg={chat} logo={logo} />
+      <FlatList
+        data={people}
+        renderItem={({ item, i }) =>
+          item.reqReceived ? (
+            <ReqTab key={i} user={item} />
           ) : (
-            <PeopTab key={i} msg={chat} logo={logo} />
+            <PeopTab key={i} user={item} />
           )
-        )}
-      </ScrollView>
+        }
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={fetccUser} />
+        }
+      />
     </View>
   );
 };

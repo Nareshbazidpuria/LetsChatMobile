@@ -3,9 +3,9 @@ import IonIcon from "@expo/vector-icons/Ionicons";
 import tw from "twrnc";
 import { primary } from "../../utils/constant";
 
-const Bicon = ({ title, name, bg = primary, onPress = () => {} }) => (
+const BiconSm = ({ title, name, bg = primary, onPress = () => {} }) => (
   <Pressable
-    style={tw`flex flex-row items-center gap-1 p-2 bg-[${bg}] rounded w-22 justify-center border ${
+    style={tw`flex flex-row items-center gap-1 rounded px-3 py-0.5 bg-[${bg}] justify-center border ${
       bg !== primary ? "border-gray-300" : `border-[${primary}]`
     }`}
     onPress={onPress}
@@ -19,4 +19,4 @@ const Bicon = ({ title, name, bg = primary, onPress = () => {} }) => (
   </Pressable>
 );
 
-export default Bicon;
+export default BiconSm;

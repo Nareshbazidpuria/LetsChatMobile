@@ -2,7 +2,7 @@ import { Image, Pressable } from "react-native";
 import { Text, View } from "react-native";
 import IonIcon from "@expo/vector-icons/Ionicons";
 import tw from "twrnc";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { primary } from "../../utils/constant";
 import moment from "moment";
 import profile from "../../assets/profile.png";

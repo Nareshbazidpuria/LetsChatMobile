@@ -16,6 +16,7 @@ import Requests from "../request";
 import People from "../people";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchText } from "../../redux/common";
+import { registerPush } from "../../utils/common";
 
 const Home = ({ navigation }) => {
   const Tab = createMaterialTopTabNavigator();
@@ -35,6 +36,7 @@ const Home = ({ navigation }) => {
 
   useEffect(() => {
     authenticate();
+    registerPush();
   }, []);
 
   useEffect(() => {

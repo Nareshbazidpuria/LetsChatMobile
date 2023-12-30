@@ -11,18 +11,23 @@ import tw from "twrnc";
 import { bg, primary } from "../../utils/constant";
 import * as LocalAuthentication from "expo-local-authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import IonIcon from "@expo/vector-icons/Ionicons";
 import LogoLable from "../common/LogoLable";
 import { loginApi } from "../../api/apis";
+import * as Notifications from "expo-notifications";
+import { registerPush } from "../../utils/common";
 
 const Login = ({ navigation }) => {
+  const notificationListener = useRef();
+  const responseListener = useRef();
+  const [loading, setLoading] = useState(false);
+  const [keyboardOpened, setKeyboardOpened] = useState(false);
   const [payload, setPayload] = useState({
     userName: "naresh_bazidpuria",
     password: "",
+    expoToken: "",
   });
-  const [loading, setLoading] = useState(false);
-  const [keyboardOpened, setKeyboardOpened] = useState(false);
 
   const message = (msg) => ToastAndroid.show(msg, ToastAndroid.LONG);
 
@@ -68,6 +73,19 @@ const Login = ({ navigation }) => {
       [key]: value,
     });
   };
+
+  useEffect(() => {
+    registerPush().then((token) =>
+      setPayload({ ...payload, expoToken: token?.data })
+    );
+
+    return () => {
+      Notifications.removeNotificationSubscription(
+        notificationListener.current
+      );
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
 
   useEffect(() => {
     const show = Keyboard.addListener("keyboardDidShow", () =>

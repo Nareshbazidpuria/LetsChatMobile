@@ -143,9 +143,9 @@ const Chat = ({ navigation, route }) => {
       // typeMessage.current.focus();
       // setLoadingChat(true);
       // setChats([]);
-      if (user?.room?._id) {
+      if (user?.room?._id && user.room._id !== annRoom) {
         const res = await getMsgsApi(user.room._id, 1);
-        if (res?.status === 200 && user.room._id !== annRoom) {
+        if (res?.status === 200) {
           // setTotalRecords(res?.data?.data?.totalRecords);
           // setLoadingChat(false);
           setChats(res?.data?.data?.data);
@@ -183,7 +183,7 @@ const Chat = ({ navigation, route }) => {
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
-        if (socket) socket.emit("leave", user.room._id);
+        if (socket) socket.emit("leave", user?.room?._id);
       }
     );
     return () => backHandler.remove();
@@ -200,7 +200,11 @@ const Chat = ({ navigation, route }) => {
         {
           message: receivedMsg.message,
           time: receivedMsg.createdAt,
-          type: receivedMsg.sentBy === user._id ? msgType.in : msgType.out,
+          type:
+            receivedMsg.sentBy === user._id || user.room._id === annRoom
+              ? msgType.in
+              : msgType.out,
+          sentBy: receivedMsg.sentBy,
         },
       ]);
   }, [receivedMsg]);
@@ -219,7 +223,7 @@ const Chat = ({ navigation, route }) => {
         <Pressable
         // onPress={() => navigation?.navigate("Profile", { user })}
         >
-          <View style={tw`flex flex-row gap-3 items-center`} >
+          <View style={tw`flex flex-row gap-3 items-center`}>
             <Image
               source={user?.profilePic || profile}
               style={tw`h-10 w-10 border border-white rounded-full`}

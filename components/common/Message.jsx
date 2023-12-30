@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { msgType } from "../../utils/constant";
 
 const Message = ({ msg, onPress }) => {
-  // const { type, delevered, seen, user } = msg;
   const {
     delevered = true,
     _id,
@@ -19,36 +18,14 @@ const Message = ({ msg, onPress }) => {
     type,
     user,
   } = msg;
-  /*
-
-
-
-
-{
-  "_id": "64cde80b988cb0fe2cf3a443",
-  "roomId": "64cde7f2988cb0fe2cf3a41a",
-  "sentBy": "64cde7ca988cb0fe2cf3a3e1",
-  "message": "Hi",
-  "contentType": "text",
-  "read": true,
-  "createdAt": "2023-08-05T06:11:23.944Z",
-  "updatedAt": "2023-08-05T06:11:31.956Z",
-  "__v": 0,
-  "type": "incomming"
-}
-
-
-
-
-*/
 
   const [uniqueId, setUniqueId] = useState("");
-  const colors = ["#06a600", "#8aa600", "#dbb300", "#7000a8", "#a80022"];
+  // const colors = ["#06a600", "#8aa600", "#dbb300", "#7000a8", "#a80022"];
 
   useEffect(() => {
     if (user) {
       let generatedId = "";
-      sentBy.split("").forEach((char) => {
+      (sentBy || "").split("").forEach((char) => {
         const code = char.charCodeAt(0);
         if (code >= 97 && code <= 122 && generatedId.length < 5)
           generatedId += char;
@@ -64,14 +41,12 @@ const Message = ({ msg, onPress }) => {
       } max-w-4/5 my-1 mx-3 overflow-hidden`}
       onPress={onPress}
     >
-      {user && (
+      {user && type === msgType.in && (
         <Text
           style={{
-            ...tw`text-xs font-bold`,
-            color:
-              type === msgType.in
-                ? colors[parseInt(Math.random() * 4 + 1)]
-                : "#00a66c",
+            ...tw`font-bold text-gray-400`,
+            fontSize: 10,
+            // color: colors[parseInt(Math.random() * 4 + 1)],
           }}
         >
           User-{uniqueId}

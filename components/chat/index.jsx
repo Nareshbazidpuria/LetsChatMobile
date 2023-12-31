@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import tw from "twrnc";
 import * as ImagePicker from "expo-image-picker";
-import { annRoom, msgType, primary } from "../../utils/constant";
+import { annRoom, contentType, msgType, primary } from "../../utils/constant";
 import IonIcon from "@expo/vector-icons/Ionicons";
 import { useRef, useState, useEffect } from "react";
 import Message from "../common/Message";
@@ -23,6 +23,8 @@ import {
   saveToLibraryAsync,
 } from "expo-media-library";
 import { getMsgsApi } from "../../api/apis";
+import { chooseImgGallery, uploadImg } from "../../utils/common";
+import { baseURL } from "../../api/axios";
 
 const Chat = ({ navigation, route }) => {
   const { user, socket } = route.params;
@@ -62,7 +64,7 @@ const Chat = ({ navigation, route }) => {
     // { delevered: false, seen: false },
   ]);
 
-  const sendMsg = () => {
+  const sendMsg = (additional = {}) => {
     if (socket) {
       setChats([
         ...chats,
@@ -73,19 +75,31 @@ const Chat = ({ navigation, route }) => {
           type: msgType.out,
           time: new Date(),
           user: user?.name,
+          ...additional,
         },
       ]);
-      setMessage("");
+      if (additional.src) delete additional.src;
       socket.emit("message", {
-        message,
+        message: { message, ...additional },
         roomId: user?.room?._id,
       });
+      setMessage("");
     }
   };
 
-  const sendFile = () => {
-    setChats([...chats, { delevered: false, seen: false, src: img }]);
-    setImg({});
+  const sendFile = async () => {
+    const res = await uploadImg(img);
+    if (res?.status === 200) {
+      // setChats([...chats, { delevered: false, seen: false, src: img }]);
+      sendMsg({
+        src: img,
+        height: img.height,
+        width: img.width,
+        message: res.data?.data?.src,
+        contentType: contentType.img,
+      });
+      setImg({});
+    }
   };
 
   const saveFile = async () => {
@@ -96,12 +110,13 @@ const Chat = ({ navigation, route }) => {
         toast("File save successfully");
       }
     } catch (error) {
+      console.log(error);
       toast("Unable to save");
     }
   };
 
   const onMsgPress = (item) => {
-    if (item?.src?.uri) setPreview(item.src);
+    if (item?.src?.uri) setPreview({ ...item.src, item });
   };
 
   const onChange = (e) => {
@@ -109,17 +124,8 @@ const Chat = ({ navigation, route }) => {
   };
 
   const chooseImg = async () => {
-    try {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
-        quality: 1,
-      });
-      if (!result?.canceled) {
-        setImg(result?.assets[0]);
-      }
-    } catch (e) {
-      console.log(e);
-    }
+    let img = await chooseImgGallery();
+    if (img) setImg(img);
   };
 
   const scrollChat = () => {
@@ -148,7 +154,16 @@ const Chat = ({ navigation, route }) => {
         if (res?.status === 200) {
           // setTotalRecords(res?.data?.data?.totalRecords);
           // setLoadingChat(false);
-          setChats(res?.data?.data?.data);
+          setChats(
+            res?.data?.data?.data?.map((msg) =>
+              msg?.contentType === contentType.img
+                ? {
+                    ...msg,
+                    src: { uri: baseURL.split("mob")[0] + msg.message },
+                  }
+                : msg
+            )
+          );
           // setChats([{ delevered: true, seen: true }]);
         }
       }
@@ -194,10 +209,15 @@ const Chat = ({ navigation, route }) => {
   }, [loaded]);
 
   useEffect(() => {
-    if (receivedMsg)
+    if (receivedMsg) {
+      if (receivedMsg?.contentType === contentType.img)
+        receivedMsg.src = {
+          uri: baseURL.split("mob")[0] + receivedMsg.message,
+        };
       setChats([
         ...chats,
         {
+          ...receivedMsg,
           message: receivedMsg.message,
           time: receivedMsg.createdAt,
           type:
@@ -207,6 +227,7 @@ const Chat = ({ navigation, route }) => {
           sentBy: receivedMsg.sentBy,
         },
       ]);
+    }
   }, [receivedMsg]);
 
   useEffect(() => {
@@ -220,9 +241,7 @@ const Chat = ({ navigation, route }) => {
       <View
         style={tw`p-3 bg-[${primary}] flex flex-row items-center justify-between`}
       >
-        <Pressable
-        // onPress={() => navigation?.navigate("Profile", { user })}
-        >
+        <Pressable onPress={() => navigation?.navigate("Profile", { user })}>
           <View style={tw`flex flex-row gap-3 items-center`}>
             <Image
               source={user?.profilePic || profile}
@@ -286,7 +305,7 @@ const Chat = ({ navigation, route }) => {
               name="send"
               size={25}
               color={primary}
-              onPress={sendMsg}
+              onPress={() => sendMsg()}
             />
           ) : (
             <></>

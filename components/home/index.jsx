@@ -95,7 +95,15 @@ const Home = ({ navigation }) => {
                   optionsContainerStyle={tw`w-24`}
                   style={tw`px-2 py-3`}
                 >
-                  <MenuOption text="Profile" />
+                  <MenuOption
+                    text="Profile"
+                    onSelect={async () =>
+                      navigation?.navigate("Profile", {
+                        user: await AsyncStorage.getItem("user"),
+                        self: true,
+                      })
+                    }
+                  />
                   <MenuOption text="Settings" />
                   <MenuOption onSelect={logout} text="Logout" />
                 </MenuOptions>

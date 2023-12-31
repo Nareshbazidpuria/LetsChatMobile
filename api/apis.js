@@ -41,7 +41,15 @@ export const getUserInfoApi = (id) => Axios.get(`${ENDPOINT.USERS}/${id}`);
 export const unfriendApi = (id) => Axios.put(`${ENDPOINT.USERS}/${id}`);
 
 export const uploadImageApi = (formData) =>
-  Axios.post(ENDPOINT.UPLOAD, formData);
+  Axios.post(ENDPOINT.UPLOAD, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    transformRequest: () => formData,
+  });
+
+// export const uploadImageApi = (formData) =>
+//   Axios.post(ENDPOINT.UPLOAD, formData);
 
 export const getReqsApi = (params) => Axios.get(ENDPOINT.REQUEST, { params });
 

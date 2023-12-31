@@ -17,6 +17,8 @@ const Message = ({ msg, onPress }) => {
     createdAt,
     type,
     user,
+    height,
+    width,
   } = msg;
 
   const [uniqueId, setUniqueId] = useState("");
@@ -57,12 +59,13 @@ const Message = ({ msg, onPress }) => {
           source={{ uri: msg.src.uri }}
           width={(Dimensions.get("window").width * 4) / 5 - 20}
           height={
-            (((Dimensions.get("window").width * 4) / 5 - 20) * msg.src.height) /
-              msg.src.width <
+            (((Dimensions.get("window").width * 4) / 5 - 20) *
+              (msg.src.height || height)) /
+              (msg.src.width || width) <
             450
               ? (((Dimensions.get("window").width * 4) / 5 - 20) *
-                  msg.src.height) /
-                msg.src.width
+                  (msg.src.height || height)) /
+                (msg.src.width || width)
               : 450
           }
         />

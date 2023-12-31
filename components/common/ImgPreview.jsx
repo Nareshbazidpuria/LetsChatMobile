@@ -4,7 +4,7 @@ import tw from "twrnc";
 const ImgPreview = ({ title, img, onOk, onCancel, okText, cancleText }) => {
   return (
     <View
-      style={tw`absolute bg-gray-800 w-full h-full py-3 flex items-center justify-between`}
+      style={tw`absolute bg-gray-800 w-full h-full py-3 flex items-center justify-between z-50`}
     >
       <Text style={tw`text-white font-bold text-lg`}>{title}</Text>
       <Image
@@ -14,9 +14,13 @@ const ImgPreview = ({ title, img, onOk, onCancel, okText, cancleText }) => {
         width={Dimensions.get("window").width}
         height={
           Dimensions.get("window").height - 150 <
-          (Dimensions.get("window").width * img?.height) / img?.width
+          (Dimensions.get("window").width *
+            (img?.height || img?.item?.height)) /
+            (img?.width || img?.item?.width)
             ? Dimensions.get("window").height - 150
-            : (Dimensions.get("window").width * img?.height) / img?.width
+            : (Dimensions.get("window").width *
+                (img?.height || img?.item?.height)) /
+              (img?.width || img?.item?.width)
         }
       />
       <View style={tw`flex flex-row justify-around w-full`}>

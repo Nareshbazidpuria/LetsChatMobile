@@ -7,4 +7,7 @@ export const msgType = {
 };
 export const contentType = {
   text: "text",
+  img: "image",
+  video: "video",
+  file: "file",
 };

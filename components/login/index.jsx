@@ -14,7 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useRef, useState } from "react";
 import IonIcon from "@expo/vector-icons/Ionicons";
 import LogoLable from "../common/LogoLable";
-import { loginApi } from "../../api/apis";
+import { getProfileApi, loginApi } from "../../api/apis";
 import * as Notifications from "expo-notifications";
 import { registerPush } from "../../utils/common";
 
@@ -51,14 +51,23 @@ const Login = ({ navigation }) => {
       const apiPayload = data || { ...payload };
       const res = await loginApi(apiPayload);
       if (res?.status === 200) {
-        message(res.data?.message);
-        await AsyncStorage.setItem(
-          "token",
-          JSON.stringify(res?.data?.data?.accessToken)
-        );
-        await AsyncStorage.setItem("loginPayload", JSON.stringify(apiPayload));
-        await AsyncStorage.setItem("user", JSON.stringify(apiPayload));
-        navigation.navigate("Home");
+        const profile = await getProfileApi();
+        if (profile.status === 200) {
+          message(res.data?.message);
+          await AsyncStorage.setItem(
+            "token",
+            JSON.stringify(res?.data?.data?.accessToken)
+          );
+          await AsyncStorage.setItem(
+            "loginPayload",
+            JSON.stringify(apiPayload)
+          );
+          await AsyncStorage.setItem(
+            "user",
+            JSON.stringify(profile.data?.data)
+          );
+          navigation.navigate("Home");
+        }
       }
     } catch (error) {
       message(error?.data?.message);
